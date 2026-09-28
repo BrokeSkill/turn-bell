@@ -1,0 +1,8 @@
+{
+  "name": "turn-bell",
+  "label": "Turn Bell",
+  "description": "Pings the configured ntfy topic when a turn finishes.",
+  "icon": "Bell",
+  "version": "1.0.0",
+  "api": "plugin_api.py"
+}

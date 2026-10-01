@@ -6,13 +6,13 @@ A bell in the Hermes desktop composer that pings you when a turn finishes, over 
 
 ## Install
 
+From the Hermes plugin catalog, or:
+
 ```bash
-cd ~/.hermes/desktop-plugins
-git clone https://github.com/BrokeSkill/turn-bell
-cd turn-bell && bash install.sh
+hermes plugins install https://github.com/BrokeSkill/turn-bell
 ```
 
-Restart the desktop app and the bell is in the composer row.
+Then enable turn-bell in Settings > Plugins and restart the desktop app. The bell is in the composer row.
 
 ## Usage
 

@@ -1,0 +1,10 @@
+manifest_version: 1
+name: turn-bell
+version: "1.0.0"
+description: Rings the configured ntfy topic when a turn finishes, driven from the composer bell.
+author: BrokeSkill
+license: MIT
+tags:
+  - desktop
+  - notifications
+  - ntfy

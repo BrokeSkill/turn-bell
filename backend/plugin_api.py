@@ -1,10 +1,3 @@
-"""Turn Bell backend half.
-
-Resolves the ntfy configuration Hermes already has (config.yaml platforms.ntfy.extra,
-then NTFY_* in the profile env/.env, then the ntfy client.yml the CLI reads) and publishes
-turn-completion pings to that topic. No topic or credentials are asked for again.
-"""
-
 import base64
 import json
 import os
@@ -119,23 +112,29 @@ def _auth_header(token: str) -> dict:
     return {"Authorization": f"Bearer {token}"}
 
 
+def _priority(value) -> int:
+    words = {"min": 1, "low": 2, "default": 3, "normal": 3, "high": 4, "urgent": 5, "max": 5}
+    if isinstance(value, int) and not isinstance(value, bool):
+        return min(max(value, 1), 5)
+    return words.get(str(value or "").strip().lower(), 3)
+
+
 def _publish(title: str, message: str, priority: str, tags: list, markdown: bool) -> dict:
     config = resolve()
     if not config["ok"]:
         return config
     headers = {"Content-Type": "application/json", **_auth_header(config["token"])}
+    document = {
+        "topic": config["topic"],
+        "title": title[:250],
+        "message": message[:MAX_MESSAGE],
+        "priority": _priority(priority),
+        "tags": [tag for tag in tags if isinstance(tag, str)][:10],
+    }
     if markdown:
-        headers["X-Markdown"] = "true"
-    body = json.dumps(
-        {
-            "topic": config["topic"],
-            "title": title[:250],
-            "message": message[:MAX_MESSAGE],
-            "priority": priority or "default",
-            "tags": [tag for tag in tags if isinstance(tag, str)][:10],
-        }
-    ).encode("utf-8")
-    request = urllib.request.Request(f"{config['server']}/{config['topic']}", data=body, headers=headers, method="POST")
+        document["markdown"] = True
+    body = json.dumps(document).encode("utf-8")
+    request = urllib.request.Request(f"{config['server']}/", data=body, headers=headers, method="POST")
     try:
         with urllib.request.urlopen(request, timeout=15) as response:
             payload = json.loads(response.read().decode("utf-8") or "{}")

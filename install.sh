@@ -8,15 +8,15 @@ ID=turn-bell
 
 mkdir -p "$HERMES_HOME_DIR/desktop-plugins/$ID" "$HERMES_HOME_DIR/plugins/$ID/dashboard"
 
-install -m 644 "$SRC/plugin.js" "$HERMES_HOME_DIR/desktop-plugins/$ID/plugin.js"
+install -m 644 "$SRC/desktop/plugin.js" "$HERMES_HOME_DIR/desktop-plugins/$ID/plugin.js"
 install -m 644 "$SRC/backend/plugin_api.py" "$HERMES_HOME_DIR/plugins/$ID/dashboard/plugin_api.py"
 install -m 644 "$SRC/backend/manifest.json" "$HERMES_HOME_DIR/plugins/$ID/dashboard/manifest.json"
-install -m 644 "$SRC/backend/plugin.yaml" "$HERMES_HOME_DIR/plugins/$ID/plugin.yaml"
+install -m 644 "$SRC/plugin.yaml" "$HERMES_HOME_DIR/plugins/$ID/plugin.yaml"
 install -m 644 "$SRC/backend/__init__.py" "$HERMES_HOME_DIR/plugins/$ID/__init__.py"
 
 if [ -d "$WIN_DIR" ]; then
   mkdir -p "$WIN_DIR/$ID"
-  install -m 644 "$SRC/plugin.js" "$WIN_DIR/$ID/plugin.js"
+  install -m 644 "$SRC/desktop/plugin.js" "$WIN_DIR/$ID/plugin.js"
   echo "desktop half mirrored to $WIN_DIR/$ID"
 else
   echo "windows scan dir not mounted; copy plugin.js into %LOCALAPPDATA%\\hermes\\desktop-plugins\\$ID\\ manually"

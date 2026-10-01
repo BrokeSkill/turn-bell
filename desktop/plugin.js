@@ -63,7 +63,10 @@ function nextMode(current) {
 function firstLine(value) {
   const text = typeof value === 'string' ? value : ''
   for (const raw of text.split('\n')) {
-    const line = raw.replace(/[#*`>_~-]/g, ' ').trim()
+    const line = raw
+      .replace(/^\s*(?:[-*+]\s+|#{1,6}\s+|>+\s*)/, '')
+      .replace(/\s+/g, ' ')
+      .trim()
     if (line) {
       return line.length > 140 ? `${line.slice(0, 137)}...` : line
     }
@@ -119,13 +122,20 @@ function summaryFor(event) {
   const counts = [formatCount(usage.input || usage.prompt), formatCount(usage.output || usage.completion)].filter(Boolean)
   const preview = firstLine(payload.text) || firstLine(payload.error) || 'No output'
   const cost = Number(usage.cost_usd) > 0 ? `$${Number(usage.cost_usd).toFixed(4)}` : ''
-  const meta = [model, duration, counts.length ? `${counts.join(' in / ')} out` : '', cost].filter(Boolean).join(' . ')
+  const meta = [model, duration, counts.length ? `${counts.join(' in / ')} out` : '', cost].filter(Boolean).join('  |  ')
   const headline = status === 'error' ? 'Turn failed' : status === 'interrupted' ? 'Turn interrupted' : 'Turn complete'
+  const detail = status === 'error' ? firstLine(payload.error) : ''
+  const shared = preview && preview === detail
+  const body = [
+    shared ? '' : preview,
+    `\`\`\`\n${meta}\n\`\`\``,
+    detail ? (shared ? `**Error**\n\`\`\`\n${detail}\n\`\`\`` : `\`\`\`\n${detail}\n\`\`\``) : ''
+  ].filter(Boolean).join('\n\n')
   return {
     status,
     preview,
-    body: [preview, meta, status === 'error' ? firstLine(payload.error) : ''].filter(Boolean).join('\n'),
-    title: model ? `${headline} . ${model}` : headline
+    body,
+    title: model ? `${headline} · ${model}` : headline
   }
 }
 
@@ -155,7 +165,7 @@ async function deliver() {
     : batch[batch.length - 1].preview
   const body = batch.length === 1
     ? batch[0].body
-    : [lead, ...batch.map(item => `${item.status === 'error' ? 'x' : '-'} ${item.preview}`)].join('\n')
+    : [`**${lead}**`, ...batch.map(item => `${item.status === 'error' ? 'x' : '-'} ${item.preview}`)].join('\n')
   const request = {
     title: batch.length === 1 ? batch[0].title : `${batch.length} turns finished`,
     message: body,
@@ -268,7 +278,7 @@ function StatusPanel({ onClose }) {
     }
     rest('/notify', {
       method: 'POST',
-      body: { title: 'Turn Bell . test', message: 'Test ping from the composer bell.', tags: ['bell'] }
+      body: { title: 'Turn Bell · test', message: 'Test ping from the composer bell.', tags: ['bell'] }
     })
       .then(result => setProbe(result && result.topic ? `Sent to ${result.topic}` : 'Sent'))
       .catch(error => setProbe(String((error && error.message) || error)))

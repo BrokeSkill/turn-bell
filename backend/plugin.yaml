@@ -1,3 +1,0 @@
-name: turn-bell
-version: "1.0.0"
-description: "Rings the configured ntfy topic when a turn finishes, driven from the composer bell."

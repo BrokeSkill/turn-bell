@@ -1,6 +1,7 @@
 manifest_version: 1
 name: turn-bell
-version: "1.0.0"
+version: "1.0.1"
+requires_hermes: ">=0.21.5"
 description: Rings the configured ntfy topic when a turn finishes, driven from the composer bell.
 author: BrokeSkill
 license: MIT

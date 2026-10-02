@@ -12,6 +12,7 @@ router = APIRouter()
 
 DEFAULT_SERVER = "https://ntfy.sh"
 MAX_MESSAGE = 4096
+ECHO_TAG = "hermes-agent"
 MARKDOWN_TRUTHY = ("1", "true", "yes")
 HERMES_HOME = Path(os.environ.get("HERMES_HOME") or (Path.home() / ".hermes"))
 
@@ -124,12 +125,15 @@ def _publish(title: str, message: str, priority: str, tags: list, markdown: bool
     if not config["ok"]:
         return config
     headers = {"Content-Type": "application/json", **_auth_header(config["token"])}
+    published = [tag for tag in tags if isinstance(tag, str) and tag][:9]
+    if ECHO_TAG not in published:
+        published.append(ECHO_TAG)
     document = {
         "topic": config["topic"],
         "title": title[:250],
         "message": message[:MAX_MESSAGE],
         "priority": _priority(priority),
-        "tags": [tag for tag in tags if isinstance(tag, str)][:10],
+        "tags": published,
     }
     if markdown:
         document["markdown"] = True
